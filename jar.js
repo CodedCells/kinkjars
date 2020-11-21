@@ -4,6 +4,8 @@ var jar = undefined;
 var jarTop = 29;
 var jarBase = 112;
 var jarSelect = 0;
+var selected = 0;
+var selectedName = "";
 
 var jars = {
 	"Transformation": 0,
@@ -23,7 +25,7 @@ var jars = {
 	"Mawplay/Teeth": 0,
 	"Drone": 0,
 	"Maid": 0,
-	"oviposition": 0,
+	"Oviposition": 0,
 	"Pooltoy/Plush": 0,
 	"Latex": 0,
 	"Petplay": 0,
@@ -36,7 +38,7 @@ var jars = {
 	"(Free Space)": 0
 }
 
-function drawJar(name, value, x, y) {
+function drawJar(name, value, x, y, sel) {
 	//ctx.fillStyle = "#ff0";//debug
 	//ctx.fillRect(x+10, y+10, 100, 120);
 	
@@ -54,7 +56,11 @@ function drawJar(name, value, x, y) {
 	// outer
 	ctx.drawImage(jar, 0, 0, 100, 120, x+10, y+10, 100, 120);
 	
-	ctx.fillStyle = "#1a1a1a";
+	if (sel)
+		ctx.fillStyle = "#1a1afa";
+	else
+		ctx.fillStyle = "#1a1a1a";
+	
 	ctx.textAlign = "center";
 	ctx.font = "16px Roboto";
 	ctx.fillText(name, x+60, y+160);
@@ -62,7 +68,8 @@ function drawJar(name, value, x, y) {
 }
 
 function drawEverything() {
-	ctx.fillStyle = "#ccc";
+	
+	ctx.fillStyle = "#cccccc";
 	ctx.fillRect(0, 0, 900, 900);
 	
 	ctx.fillStyle = "#1a1a1a";
@@ -77,7 +84,7 @@ function drawEverything() {
 	for (var n in jars) {
 		x = i % 7;
 		y = Math.floor(i / 7);
-		drawJar(n, jars[n], (x*120)+30, (y*200)+90);
+		drawJar(n, jars[n], (x*120)+30, (y*200)+90, i == selected);
 		i++;
 	}
 }
@@ -110,12 +117,8 @@ function  getMousePos(canvas, evt) {
 }
 
 function clickcanvas(e) {
-	drawEverything();
-	
 	mouse = getMousePos(canvas, e);
-	console.log(mouse);
-	ctx.fillStyle = "#f00";
-	ctx.fillRect(mouse.x-2, mouse.y-2, 4, 4);
+	//console.log(mouse);
 	
 	//40, 100, 140, 220
 	//160...
@@ -127,11 +130,25 @@ function clickcanvas(e) {
 	jary = Math.floor((mouse.y - 80) / 200);
 	jaryf = (mouse.y - 80) % 200
 	
+	selected = jarx + (jary * 7);
+	i = 0;
+	for (var n in jars) {
+		if (selected == i) {
+			selectedName = n;
+			break;
+		}
+		i++
+	}
+	
+	console.log(selected, selectedName);
+	
 	if (jarx < 0 || jary < 0 || jarx > 7 || jary > 3) {return;}
 	console.log("jar", jarx, jary)
 	console.log("sub", jarxf, jaryf);
 	
-	ctx.strokeStyle = "#070";
-	ctx.rect((jarx*120)+40, (jary*200)+100, 100, 120);
-	ctx.stroke();
+	if (jaryf > 20 && jaryf < 140) {
+		jars[selectedName] = (100 - (jaryf - 20)) / 80;
+	}
+	
+	drawEverything();
 }
