@@ -1,0 +1,27 @@
+<style>
+body {
+	margin: 0;
+	background: #131317;
+	font-family: sans-serif;
+	text-align: center;
+}
+
+img {
+	display: none;
+}
+
+nocanvas {
+	background: #000000;
+    image-rendering: optimizeSpeed;             /* Older versions of FF          */
+    image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+    image-rendering: -webkit-optimize-contrast; /* Safari                        */
+    image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+    image-rendering: pixelated;                 /* Awesome future-browsers       */
+    -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+}
+</style>
+<body onload="init()">
+<script src="jar.js"></script>
+<canvas id="jardisplay" width="900" height="900" onclick="clickcanvas(event);"></canvas>
+<img id="jar-mc" src="jar-mc.png">
+</body>
