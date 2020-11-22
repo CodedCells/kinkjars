@@ -6,19 +6,49 @@ body {
 	text-align: center;
 }
 
-img {
-	display: none;
-}
+.hide {display: none;}
+p {color: #fff;}
 
-p {
-	color: #fff;
+.optionbar {
+	background: #a0a0a0;
+}
+.option {
+	display: inline-block;
+	padding: 0 10px;
+}
+button a {
+	text-decoration: none;
+	font-color: -internal-light-dark(black, white);
 }
 
 </style>
 <body onload="init()">
 <script src="jar.js"></script>
+
+<div class="optionbar">
+<div class="option">
+	<span>Jar Fill</span>
+	<input id="jarcolor" type="color" value="#ffffff" onchange="magicFill(this)" />
+</div><div class="option">
+	<button onclick="randomcolor()">Randomize Color</button>
+	<button onclick="randomfill()">Randomize Fill</button>
+</div>
+<div class="option">
+	<select onchange="magicJar(this)">
+	<option value="jar-generic" selected>Generic</option>
+	<option value="jar-mc">Minecraft</option>
+	<option value="jar-mug">Mug</option>
+	</select>
+</div>
+<div class="option">
+	<button><a onclick="save(this)">Save</a></button>
+</div>
+</div>
+
 <canvas id="jardisplay" width="900" height="900" onclick="clickcanvas(event);"></canvas>
-<canvas id="jarmixer" width="300" height="120"></canvas>
-<img id="jar-mc" src="jar-mc.png">
+<canvas class="hide" id="jarmixer" width="300" height="120"></canvas>
+<img class="hide" id="jar-generic" src="jar-generic.png">
+<img class="hide" id="jar-mc" src="jar-mc.png">
+<img class="hide" id="jar-mug" src="jar-mug.png">
 <p>Credit to @NaughtyGryph (the specific version I based mine on)</p>
 </body>
