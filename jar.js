@@ -1,11 +1,19 @@
+// warning hardcoded coordinates ahead
+// want new jars? ez
+// want to see more jars? so would I
+
 var canvas = undefined;
 var ctx = undefined;
+var jarsrc = undefined;
 var jar = undefined;
+var jarctx = undefined;
 var jarTop = 29;
 var jarBase = 112;
 var jarSelect = 0;
 var selected = 0;
 var selectedName = "";
+var debug = false;
+var jarColor = "#c00";// this pains me as a brit, but it stops me making typos elsewhere
 
 var jars = {
 	"Transformation": 0,
@@ -64,7 +72,7 @@ function drawJar(name, value, x, y, sel) {
 	ctx.textAlign = "center";
 	ctx.font = "16px Roboto";
 	ctx.fillText(name, x+60, y+160);
-	ctx.fillText(value.toFixed(2), x+60, y+180);
+	if (debug) ctx.fillText(value.toFixed(2), x+60, y+180);
 }
 
 function drawEverything() {
@@ -89,11 +97,26 @@ function drawEverything() {
 	}
 }
 
+function setJarFill(color) {
+	jarctx.clearRect(0, 0, 300, 120);
+	//jarctx.globalCompositeOperation = "source-over";
+	
+	//jarctx.fillStyle = color;
+	//jarctx.fillRect(100, 0, 200, 120);
+	
+	//jarctx.globalCompositeOperation = "multiply";
+	jarctx.drawImage(jarsrc, 0, 0);
+}
+
 function init() {
 	canvas = document.getElementById("jardisplay");
 	ctx = canvas.getContext("2d");
 	
-	jar = document.getElementById("jar-mc");
+	jarsrc = document.getElementById("jar-mc");
+	jar = document.getElementById("jarmixer");
+	jarctx = jar.getContext("2d");
+	
+	setJarFill(jarColor);
 	
 	for (var n in jars) {
 		jars[n] = Math.random() * 1.2;
@@ -130,6 +153,13 @@ function clickcanvas(e) {
 	jary = Math.floor((mouse.y - 80) / 200);
 	jaryf = (mouse.y - 80) % 200
 	
+	if (jarx < 0 || jary < 0 || jarx > 7 || jary > 3) {
+		selected = -1;
+		drawEverything();
+		selectedName = "joe";
+		return;
+		}
+	
 	selected = jarx + (jary * 7);
 	i = 0;
 	for (var n in jars) {
@@ -140,11 +170,10 @@ function clickcanvas(e) {
 		i++
 	}
 	
-	console.log(selected, selectedName);
+	if (debug) console.log(selected, selectedName);
 	
-	if (jarx < 0 || jary < 0 || jarx > 7 || jary > 3) {return;}
-	console.log("jar", jarx, jary)
-	console.log("sub", jarxf, jaryf);
+	//console.log("jar", jarx, jary)
+	//console.log("sub", jarxf, jaryf);
 	
 	if (jaryf > 20 && jaryf < 140) {
 		jars[selectedName] = (100 - (jaryf - 20)) / 80;
