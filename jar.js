@@ -2,74 +2,97 @@
 // want new jars? ez
 // want to see more jars? so would I
 
-var canvas = undefined;
+canvas = document.getElementById("jardisplay");
+	canvas.addEventListener( 'mousemove', function( event ) {
+  if( event.offsetX ){
+    mouseX = event.offsetX;
+    mouseY = event.offsetY;
+  } else {
+    mouseX = event.pageX - event.target.offsetLeft;
+    mouseY = event.pageY - event.target.offsetTop;
+  }
+  // call the draw function
+  mouseMove();
+}, false );
+
 var ctx = undefined;
 var jarsrc = undefined;
 var jar = undefined;
 var jarctx = undefined;
-var jarTop = 29;
+var jarTop = 20;
 var jarBase = 112;
-var jarSelect = 0;
-var selected = 0;
-var selectedName = "";
+var selected = -1;
 var debug = false;
 var jarColor = "#fff";// this pains me as a brit, but it stops me making typos elsewhere
+var mouseX = 0;
+var mouseY = 0;
+var hoverlast = -1;
 
-var jars = {
-	"Transformation": 0,
-	"Vore": 0,
-	"Inflation": 0,
-	"Paw": 0,
-	"Hyper": 0,
-	"Muscle": 0,
-	"Breeding": 0,
-	"Macro/Micro": 0,
-	"Pregnancy": 0,
-	"Hypnosis": 0,
-	"Cumplay": 0,
-	"Bimboification": 0,
-	"Musk": 0,
-	"Sensory\nDeprivation": 0,
-	"Teeth /\nMawplay": 0,
-	"Drone": 0,
-	"Maid": 0,
-	"Oviposition": 0,
-	"Plush /\nPooltoy": 0,
-	"Latex": 0,
-	"Petplay": 0,
-	"Monsters": 0,
-	"Stuffing": 0,
-	"Denial /\nChastity": 0,
-	"Growth": 0,
-	"Weight Gain": 0,
-	"Tentacles": 0,
-	"Breathplay": 0,
-	"Watersports": 0,
-	"Bondage": 0,
-	"Body Mods /\nPiecings": 0,
-	"Magic": 0,
-	"Milking": 0,
-	"Torture": 0,
-	"(Free Space)": 0
-}
+var jars = [
+	["Transformation", 0], 
+	["Vore", 0], 
+	["Inflation", 0], 
+	["Paw", 0], 
+	["Hyper", 0], 
+	["Muscle", 0], 
+	["Breeding", 0], 
+	["Macro/Micro", 0], 
+	["Pregnancy", 0], 
+	["Hypnosis", 0], 
+	["Cumplay", 0], 
+	["Bimboification", 0], 
+	["Musk", 0], 
+	["Sensory\nDeprivation", 0], 
+	["Teeth /\nMawplay", 0], 
+	["Drone", 0], 
+	["Maid", 0], 
+	["Oviposition", 0], 
+	["Plush /\nPooltoy", 0], 
+	["Latex", 0], 
+	["Petplay", 0], 
+	["Monsters", 0], 
+	["Stuffing", 0], 
+	["Denial /\nChastity", 0], 
+	["Growth", 0], 
+	["Weight Gain", 0], 
+	["Tentacles", 0], 
+	["Breathplay", 0], 
+	["Watersports", 0], 
+	["Bondage", 0], 
+	["Body Mods /\nPiecings", 0], 
+	["Magic", 0], 
+	["Milking", 0], 
+	["Torture", 0], 
+	["(Free Space)", 0]
+];
 
-function drawJar(name, value, x, y, sel) {
-	//ctx.fillStyle = "#ff0";//debug
-	//ctx.fillRect(x+10, y+10, 100, 120);
+function drawJar(name, value, gridI, sel) {
 	
-	ctx.fillStyle = "#ccc";
+	posX = (gridI % 7) * 120 + 30
+	posY = Math.floor(gridI / 7) * 160 + 70
+	
+	//ctx.fillStyle = "#cccccc";
+	//ctx.fillRect(posX+10, posY, 105, 130);
+	
+	//ctx.fillStyle = "#ff0";//debug
+	//ctx.fillRect(posX + 10, posY + 10, 100, 120);
+	
+	ctx.fillStyle = "#cccccc";
 	
 	// fill
 	if (value == 0) {
 	} else if (value >= 1) {
-		ctx.drawImage(jar, 200, 0, 100, 120, x+10, y+10, 100, 120);
+		ctx.drawImage(jar, 200, 0, 100, 120, posX + 10, posY + 10, 100, 120);
 	} else {
-		ctx.drawImage(jar, 100, 0, 100, 120, x+10, y+10, 100, 120);
-		ctx.fillRect(x+10, y+jarTop+10, 100, (1-value) * (jarBase-jarTop));
+		ctx.drawImage(jar, 100, 0, 100, 120, posX + 10, posY + 10, 100, 120);
+		// borked pls fix
+		height = (1 - value) * (jarBase - jarTop) + jarTop;
+		height = Math.min(height, 120) - jarTop;
+		ctx.fillRect(posX + 10, posY + jarTop + 10, 100, height);
 	}
 	
 	// outer
-	ctx.drawImage(jar, 0, 0, 100, 120, x+10, y+10, 100, 120);
+	ctx.drawImage(jar, 0, 0, 100, 120, posX + 10, posY + 10, 100, 120);
 	
 	if (sel)
 		ctx.fillStyle = "#1a1afa";
@@ -80,15 +103,28 @@ function drawJar(name, value, x, y, sel) {
 	ctx.font = "16px Roboto";
 	lines = name.split("\n");
 	for (var l = 0; l < lines.length; l++) {
-		ctx.fillText(lines[l], x+60, y+150+(20*l));
+		ctx.fillText(lines[l], posX + 60, posY + 150 + (20 * l));
 	}
+	
 	if (debug) {
+		ctx.beginPath();
 		ctx.fillStyle = "#cccccc";
-		ctx.fillRect(x+40, y+65, 40, 20)
+		ctx.fillRect(posX + 40, posY + 65, 40, 20)
 		ctx.fillStyle = "#1a1a1a";
-		ctx.fillText(value.toFixed(2), x+60, y+80);	
+		ctx.fillText(value.toFixed(2), posX + 60, posY + 80);	
 		ctx.strokeStyle = "#070";
-		ctx.rect(x+10, y+10, 100, 120);
+		ctx.rect(posX + 10, posY + 10, 100, 120);
+		ctx.stroke();
+	}
+	
+	if (sel) {
+		ctx.strokeStyle = "#f00";
+		ctx.beginPath();
+		ctx.moveTo(posX + 102, posY + 12);
+		ctx.lineTo(posX + 108, posY + 18);
+		
+		ctx.moveTo(posX + 108, posY + 12);
+		ctx.lineTo(posX + 102, posY + 18);
 		ctx.stroke();
 	}
 }
@@ -96,7 +132,7 @@ function drawJar(name, value, x, y, sel) {
 function drawEverything() {
 	
 	ctx.fillStyle = "#cccccc";
-	ctx.fillRect(0, 0, 900, 900);
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	
 	ctx.fillStyle = "#1a1a1a";
 	ctx.font = "48px Roboto";
@@ -108,9 +144,7 @@ function drawEverything() {
 	
 	i = 0;
 	for (var n in jars) {
-		x = i % 7;
-		y = Math.floor(i / 7);
-		drawJar(n, jars[n], (x*120)+30, (y*160)+70, i == selected);
+		drawJar(jars[i][0], jars[i][1], i, i == selected);
 		i++;
 	}
 }
@@ -163,13 +197,37 @@ function magicJar(a) {
 	drawEverything();
 }
 
+function mouseMove() {
+	[selected, jarxf, jaryf] = whichJar(mouseX, mouseY);
+	if (selected < 0 || selected >= jars.length) {return;}
+	
+	if (hoverlast != selected && hoverlast > -1) {
+		if (hoverlast >= jars.length) hoverlast = selected;
+		drawJar("", jars[hoverlast][1], hoverlast, selected==hoverlast);
+	}
+	
+	fill = fillLevel(jaryf);
+	if (fill[0] && jarxf > 10 && jarxf < 110) drawJar("", fill[1], selected, true);
+	
+	if (debug) {
+		ctx.fillStyle = "#fff";
+		ctx.fillRect(0, 0, 50, 50);
+		ctx.fillStyle = "#333";
+		ctx.fillText(jarxf, 25, 20);
+		ctx.fillText(jaryf, 25, 40);
+	}
+	hoverlast = selected;
+}
+
 function init() {
-	canvas = document.getElementById("jardisplay");
+	
 	ctx = canvas.getContext("2d");
 	
 	jarsrc = document.getElementById("jar-generic");
 	jar = document.getElementById("jarmixer");
 	jarctx = jar.getContext("2d");
+	
+	randomfill()
 	
 	setJarFill(jarColor);
 	drawEverything();
@@ -231,19 +289,9 @@ function randomcolor() {
 
 function randomfill() {
 	for (var n in jars) {
-		jars[n] = Math.random() * 1.2;
+		jars[n][1] = Math.random() * 1.2;
 	}
 	drawEverything();
-}
-
-function save(btn) {
-	var tsel = selected;
-	selected = -1
-	drawEverything()
-	btn.href = canvas.toDataURL('image/png');
-    btn.download = "jars.png";
-	selected = tsel;
-	drawEverything()
 }
 
 function  getMousePos(canvas, evt) {
@@ -260,45 +308,62 @@ function  getMousePos(canvas, evt) {
 	}
 }
 
+function whichJar(x, y) {
+	
+	jarx = Math.floor((x - 30) / 120);
+	jarxf = (x - 30) % 120;
+	
+	jary = Math.floor((y - 60) / 160);
+	jaryf = (y - 60) % 160
+	
+	if (x < 30 || x > 870) {return [-1, jarxf, jaryf]}
+	
+	return [jarx + (jary * 7), jarxf, jaryf];
+}
+
+function fillLevel(jaryf) {
+	return [jaryf > 20 && jaryf < 140, (100 - (jaryf - 20)) / 80];
+}
+
 function clickcanvas(e) {
 	mouse = getMousePos(canvas, e);
-	//console.log(mouse);
+	[selected, jarxf, jaryf] = whichJar(mouse.x, mouse.y);
 	
-	//40, 100, 140, 220
-	//160...
-	//40, 300...
-	
-	jarx = Math.floor((mouse.x - 30) / 120);
-	jarxf = (mouse.x - 30) % 160;
-	
-	jary = Math.floor((mouse.y - 60) / 150);
-	jaryf = (mouse.y - 60) % 160
-	
-	if (jarx < 0 || jary < 0 || jarx > 7 || jary > 4) {
+	if (debug) console.log("clicked", selected);
+	if (selected < 0 || selected >= jars.length) {
 		selected = -1;
-		drawEverything();
-		selectedName = "joe";
 		return;
-		}
-	
-	selected = jarx + (jary * 7);
-	i = 0;
-	for (var n in jars) {
-		if (selected == i) {
-			selectedName = n;
-			break;
-		}
-		i++
 	}
 	
-	if (debug) console.log(selected, selectedName);
+	console.log(jarxf, jaryf);
 	
-	//console.log("jar", jarx, jary)
-	//console.log("sub", jarxf, jaryf);
-	
-	if (jaryf > 20 && jaryf < 140) {
-		jars[selectedName] = (100 - (jaryf - 20)) / 80;
+	if (20 < jaryf && jaryf < 30) {
+		if (100 < jarxf && jarxf < 110) {
+			// remove the jar
+			jars.splice(selected, 1);
+			selected = -1;
+			
+			newheight = Math.ceil(jars.length / 7) * 160 + 100;
+			canvas.height = newheight;
+		}
+	} else {
+		fill = fillLevel(jaryf);
+		if (fill[0] && jarxf > 10 && jarxf < 110) {
+			jars[selected][1] = fill[1];
+		}
 	}
 	
 	drawEverything();
+	mouseMove();
+}
+
+function addPrompt() {
+	jarname = prompt("Name the jar:");
+	if (jarname != undefined && jarname != "") {
+		jars.push([jarname, 0]);
+		
+		newheight = Math.ceil(jars.length / 7) * 160 + 100;
+		canvas.height = newheight;
+		drawEverything();
+	}
 }

@@ -1,5 +1,6 @@
 <style>
 body {
+	user-select: none;
 	margin: 0;
 	background: #131317;
 	font-family: sans-serif;
@@ -23,13 +24,16 @@ button a {
 
 </style>
 <body onload="init()">
-<script src="jar.js"></script>
 
 <div class="optionbar">
 <div class="option">
 	<span>Jar Fill</span>
 	<input id="jarcolor" type="color" value="#ffffff" onchange="magicFill(this)" />
-</div><div class="option">
+</div>
+<div class="option">
+	<button onclick="addPrompt()">Add Jar</button>
+</div>
+<div class="option">
 	<button onclick="randomcolor()">Randomize Color</button>
 	<button onclick="randomfill()">Randomize Fill</button>
 </div>
@@ -41,7 +45,6 @@ button a {
 	</select>
 </div>
 <div class="option">
-	<button><a onclick="save(this)">Save</a></button>
 </div>
 </div>
 
@@ -50,5 +53,7 @@ button a {
 <img class="hide" id="jar-generic" src="jar-generic.png">
 <img class="hide" id="jar-mc" src="jar-mc.png">
 <img class="hide" id="jar-mug" src="jar-mug.png">
+
+<script src="jar.js"></script>
 <p>Credit to @NaughtyGryph (the specific version I based mine on)</p>
 </body>
